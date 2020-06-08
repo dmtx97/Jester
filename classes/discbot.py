@@ -1,14 +1,15 @@
 import discord
 from discord.ext import commands
 from dataclasses import dataclass
+from dataclasses_json import dataclass_json
 from typing import List
 import asyncio
 import json
 
+@dataclass_json
 @dataclass
 class User:
     '''Class for creating new users'''
-
     user_name : str
     user_id : int
     user_discriminator : str
@@ -24,35 +25,31 @@ class Member(commands.Cog):
                                    #object of type Member 
 
         with open("users.json", "r+") as f:
-            data = json.loads(f)
+            data = json.loads(f.read())
 
             for members in data['members']:
                 if str(member.id) in members['user_id']:
                     pass
 
                 else:
-                    new_user = User('''new User instance''')
-                    # data['members'].update(dict(user_id='member.id', jokes=[]))
-                    data['members'].update(new_user.__dict__)
+                    new_user = User(member.name, member.id, member.discriminator, [])
+                    data.update(new_user.to_dict())
+                    json.dumps(data, f, indent=4, sort_keys=False)
+
                     f.seek(0)
                     json.dump(data, f)
                     break
 
-    @client.event
+    @bot.event
     async def on_reaction_add(reaction, user):
 
     @commands.command()
-    async def list_favorites(self, ctx, *, member):
+    async def listfavs(self, ctx, *, member):
 
 
 class Joke(commands.Cog):
 
     def __init__(self, bot):
-
-
-
-
-
 
 class GuildData(commands.Cog):
 
@@ -62,16 +59,16 @@ class GuildData(commands.Cog):
     @commands.Cog.listener()
     async def get_guilds(self):
 
-        users = get_users()
+        with open("guild_members.json", "a+") as f: 
 
-        for gulid in self.bot.guilds:
-            for member in guild.members:
+            users = self.get_users()
+            discriminator = [user.user_discriminator for user in users]
 
-                with open("{}_{}.json".format(guild.name, guild.id), "r+") as f:
-                    
-                    for user in users:
-                        json.dumps(user.__dict__)
-                    #iterate through users array by calling get_users() and serialize it to json objects
+            for dis in discriminator:
+                user_json = { dis : []}
+
+                for user in users:
+                    json.dumps(user_json[dis].append(user.to_dict()), f, indent=4, sort_keys=False)
 
     # @commands.Cog.listener()
     async def get_users(self):
@@ -79,8 +76,7 @@ class GuildData(commands.Cog):
         users = []
         for guild in self.bot.guilds:
             for member in guild.member:
-
-                users.append(User(''' member info as param'''))
+                users.append(User(member.name, member.id, member.discriminator, []))
 
         return users
 

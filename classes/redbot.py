@@ -16,69 +16,36 @@ class RedBot:
         self.reddit.config.decode_html_entities = True
 
     def getJokes(self):
-
-        today = datetime.today().strftime('%Y-%m-%d')
         today = datetime.today().strftime("%m/%d/%Y, %H:%M:%S")
-        jokes = {'jokes' : [{today:[]}]}
+        jokes = {today: []}
 
 
-        if not os.path.isfile('redditJokes.json'):
-            with open("redditJokes.json", "a+") as f:
-                json.dump(jokes, f, indent=4, sort_keys = False)
-
-        with open("redditJokes.json", "r+") as f:
-            data = json.loads(f.read())
-
-            day_len = len(data["jokes"])
-
-            # print(data["jokes"][day_len][today])
-
-            for submission in self.reddit.subreddit('jokes').hot(limit = 20):
-
-                post = self.reddit.submission(id=submission.id)
-                title = post.title 
-                text = post.selftext
+        for submission in self.reddit.subreddit('jokes').hot(limit=20):
+            post = self.reddit.submission(id=submission.id)
+            title = post.title 
+            text = post.selftext
 
             if post.score >= 300 and not post.edited and not post.stickied:
-                data['jokes'][0][today].append(
-                    {
-                    'title' : title,
-                    'text' : text,
-                    }
-                )
+                jokes[today].append({'title': title, 'text' : text})
 
-                data.update(data['jokes'])
+        return jokes
+
+    def dumpJokes(self):
+
+        jokes = self.getJokes()
+        
+        if os.path.isfile('redditJokes.json'):
+
+            with open("redditJokes.json", "r+") as f:
+                data = json.loads(f.read())
+                data.update(jokes)
                 f.seek(0)
                 json.dump(data, f, indent=4, sort_keys = False)
 
-        # with open("redditJokes.json", "r+") as f:
-
-
-        # for submission in self.reddit.subreddit('jokes').hot(limit = 20):
-        #     post = self.reddit.submission(id=submission.id)
-        #     title = post.title 
-        #     text = post.selftext
-
-        #     if post.score >= 300 and not post.edited and not post.stickied:
-        #         jokes['jokes'][][today].append(
-        #             {
-        #             'title' : title,
-        #             'text' : text,
-        #             }
-        #         )
-
-        # if os.path.isfile('redditJokes.json'):
-
-        #     with open("redditJokes.json", "r+") as f:
-        #         data = json.loads(f.read())
-        #         data.update(jokes['jokes'])
-        #         f.seek(0)
-        #         json.dump(data, f, indent=4, sort_keys = False)
-                
-        # else:
-
-        #     with open("redditJokes.json", "w+") as f:
-        #         json.dump(jokes, f, indent=4, sort_keys = False)
+        else:
+            with open("redditJokes.json", "w+") as f:
+                json.dump(jokes, f, indent=4, sort_keys = False)
+            
 
 
 """
