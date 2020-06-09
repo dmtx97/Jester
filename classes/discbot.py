@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from dataclasses import dataclass
 from dataclasses_json import dataclass_json
+from datetime import datetime
 from typing import List
 import asyncio
 import json
@@ -28,7 +29,7 @@ class Member(commands.Cog):
             data = json.loads(f.read())
 
             for members in data['members']:
-                if str(member.id) in members['user_id']:
+                if member.discriminator in members:
                     pass
 
                 else:
@@ -42,6 +43,26 @@ class Member(commands.Cog):
 
     @bot.event
     async def on_reaction_add(reaction, user):
+
+        if(reaction.emoji == ⭐):
+
+            with open("guild_members.json", "a+") as f:
+
+                data = json.loads(f)
+
+                if(user.discriminator in data):
+                    temp = data[user.discriminator]["jokes"]
+                    date_added = datetime.today().strftime("%m/%d/%Y")
+                    message = reaction.message.content 
+                    joke_id = message.partition("Joke ID: ")[2]
+
+                    # temp.append([{"date_added" : date_added},{"joke_id" : joke_id}])
+                    temp.append([joke_id])
+
+                    #dump
+
+
+
 
     @commands.command()
     async def listfavs(self, ctx, *, member):

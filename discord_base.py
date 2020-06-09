@@ -5,7 +5,6 @@ from classes.discbot import DiscCog, Users
 
 
 if __name__ == "__main__":
-    
 
     bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"),
                     description='Joke Bot!')

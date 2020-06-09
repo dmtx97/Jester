@@ -1,6 +1,7 @@
 import praw
 import json
 import os
+import asyncio
 from datetime import datetime
 
 class RedBot:
@@ -15,10 +16,27 @@ class RedBot:
 
         self.reddit.config.decode_html_entities = True
 
+    def enumerate_jokes(self):
+
+        with open('redditJokes.json', 'r+') as f:
+
+            data = json.loads(f.read())
+            i = 0
+            for date in data:
+                for content in data[date]:
+                    i += 1 
+                    temp = dict(content)
+                    temp['joke_id'] = i
+
+                    # print(temp)
+                    data.update(temp)
+                    json.dump(data, f, indent=4, sort_keys = False)
+
+                    ############ ISSUE ############
+
     def getJokes(self):
         today = datetime.today().strftime("%m/%d/%Y, %H:%M:%S")
         jokes = {today: []}
-
 
         for submission in self.reddit.subreddit('jokes').hot(limit=20):
             post = self.reddit.submission(id=submission.id)
@@ -41,23 +59,23 @@ class RedBot:
                 data.update(jokes)
                 f.seek(0)
                 json.dump(data, f, indent=4, sort_keys = False)
+                # self.enumerate_jokes()
 
         else:
             with open("redditJokes.json", "w+") as f:
                 json.dump(jokes, f, indent=4, sort_keys = False)
-            
+        
+        self.enumerate_jokes()
 
+    def parseJson(self):
+        with open('redditJokes.json', 'r+') as f:
 
-"""
-To save jokes per user:
+            data = json.loads(f.read())
+            joke_id = []
+            i = 0
+            for date in data:
+                for content in data[date]:
+                    i += 1 
+                    joke_id.append(i)
 
-!jokeme will print out a random joke and react to it with a star:
-when a user reacts to a message, it call the SaveJoke function and update the SavedUser JSON array. 
-I will auto increment the saved jokes so when they type !listsaved, it will display the id along with the first sentence of the joke that was saved
-
-schedule a function to append new user to SavedUser json array when they join the discord server:
-this JSON file will contain an array of saved jokes per user...
-
-
-
-"""
+            print(joke_id)
