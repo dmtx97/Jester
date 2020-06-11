@@ -3,7 +3,6 @@ import discord
 from discord.ext import commands
 from classes.discbot import DiscCog, Users
 
-
 if __name__ == "__main__":
 
     bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"),
@@ -13,7 +12,6 @@ if __name__ == "__main__":
     async def on_ready():
         print('Logged in as {0} ({0.id})'.format(bot.user))
         print('------')
-
 
     bot.add_cog(DisCog(bot))
 

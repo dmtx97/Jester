@@ -21,24 +21,20 @@ class Member(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.Cog.listener()
+    @bot.event()
     async def on_member_join(self, member):
-                                   #object of type Member 
 
-        with open("users.json", "r+") as f:
+        with open("guild_members.json", "r+") as f:
             data = json.loads(f.read())
 
-            for members in data['members']:
-                if member.discriminator in members:
-                    pass
+            if member.discriminator in data:
+                pass
 
-                else:
-                    new_user = User(member.name, member.id, member.discriminator, [])
-                    data.update(new_user.to_dict())
-                    json.dumps(data, f, indent=4, sort_keys=False)
-                    f.seek(0)
-                    json.dump(data, f)
-                    break
+            else:
+                new_user = User(member.name, member.id, member.discriminator, [])
+                data.update(new_user.to_dict())
+                f.seek(0)
+                json.dump(data, f, indent=4, sort_keys=False)
 
     @bot.event
     async def on_reaction_add(reaction, user):
@@ -50,18 +46,48 @@ class Member(commands.Cog):
                 data = json.loads(f)
 
                 if(user.discriminator in data):
-                    temp = data[user.discriminator]["jokes"]
                     date_added = datetime.today().strftime("%m/%d/%Y")
                     message = reaction.message.content 
                     joke_id = message.partition("Joke ID: ")[2]
-
-                    # temp.append([{"date_added" : date_added},{"joke_id" : joke_id}])
-                    temp.append([joke_id])
-
-                    #dump
+                    # data[user.discriminator]['jokes'].append({'date_added' : date_added, 'joke_id' : joke_id})
+                    data[user.discriminator]['jokes'].append(joke_id)
+                    json.dump(data, f, indent=4, sort_keys=False)
 
     @commands.command()
-    async def listfavs(self, ctx, *, member):
+    async def listfavs(self, ctx, *, member = discord.Member):
+
+        embed = discord.Embed(
+            title = "{}'s Saved Jokes".format(member.name)
+            description = "Below is a preview of the jokes that you have saved. To view the full joke, use command !telljoke along with the joke ID seperated by a space"
+            colour = purple
+        )
+
+        member_file = open("guild_members", "r")
+        member_data = json.loads(member_file)
+        jokes_file = open("guild_memmbers", "r")
+        jokes_data = json.loads(jokes_file)
+        dis = member.discriminator
+
+        joke_ids = []
+        if dis in jokes_data:
+            for val in member_data[dis]:
+                joke_ids + val['jokes']
+
+                #loop and splice joke after 25 characters and replace with ... use a \n.join(string) to add new line 
+                #do the same for the joke ID
+                #possible for date added
+                #create 
+        
+        '''possibly change id for the key for the json file instead of date and place the date aquired inside. this will reduce one for loop'''
+        for date in jokes_data:
+            for content in jokes_data[date]:
+                for ids in joke_ids:
+
+                    if content['joke_id'] == ids:
+
+        #embed the fields = title, date added, and joke id
+
+        #for each joke id in user, create dictionary 
 
 class Joke(commands.Cog):
 
@@ -80,7 +106,7 @@ class GuildData(commands.Cog):
         with open("guild_members.json", "a+") as f:
             json.dumps(users, f, indent=4, sort_keys=False)
 
-    # @commands.Cog.listener()
+    @commands.Cog.listener()
     async def get_users(self, guild):
 
         users = {}
@@ -91,14 +117,4 @@ class GuildData(commands.Cog):
         
         return users
 
-    #register commands for guild members for server status i guess
-
-
-        
-
-                
-
-        
-
-
-
+#create commands for server status
