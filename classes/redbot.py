@@ -22,23 +22,19 @@ class RedBot:
 
             data = json.loads(f.read())
             i = 0
+
             for date in data:
                 for content in data[date]:
-                    i += 1 
-                    temp = dict(content)
-                    temp['joke_id'] = i
-
-                    # print(temp)
-                    data.update(temp)
-                    json.dump(data, f, indent=4, sort_keys = False)
-
-                    ############ ISSUE ############
+                    i+=1
+                    content['joke_id'] = i
+            f.seek(0)
+            json.dump(data, f, indent=4, sort_keys=False)
 
     def getJokes(self):
         today = datetime.today().strftime("%m/%d/%Y, %H:%M:%S")
         jokes = {today: []}
 
-        for submission in self.reddit.subreddit('jokes').hot(limit=20):
+        for submission in self.reddit.subreddit('jokes').hot(limit=5):
             post = self.reddit.submission(id=submission.id)
             title = post.title 
             text = post.selftext
@@ -53,19 +49,18 @@ class RedBot:
         jokes = self.getJokes()
         
         if os.path.isfile('redditJokes.json'):
-
             with open("redditJokes.json", "r+") as f:
                 data = json.loads(f.read())
                 data.update(jokes)
                 f.seek(0)
                 json.dump(data, f, indent=4, sort_keys = False)
-                # self.enumerate_jokes()
 
         else:
             with open("redditJokes.json", "w+") as f:
                 json.dump(jokes, f, indent=4, sort_keys = False)
-        
+
         self.enumerate_jokes()
+
 
     def parseJson(self):
         with open('redditJokes.json', 'r+') as f:

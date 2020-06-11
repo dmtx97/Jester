@@ -13,7 +13,7 @@ class User:
     '''Class for creating new users'''
     user_name : str
     user_id : int
-    user_discriminator : str
+    # user_discriminator : str
     jokes : List = []
 
 class Member(commands.Cog):
@@ -36,7 +36,6 @@ class Member(commands.Cog):
                     new_user = User(member.name, member.id, member.discriminator, [])
                     data.update(new_user.to_dict())
                     json.dumps(data, f, indent=4, sort_keys=False)
-
                     f.seek(0)
                     json.dump(data, f)
                     break
@@ -61,12 +60,8 @@ class Member(commands.Cog):
 
                     #dump
 
-
-
-
     @commands.command()
     async def listfavs(self, ctx, *, member):
-
 
 class Joke(commands.Cog):
 
@@ -77,28 +72,23 @@ class GuildData(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.Cog.listener()
-    async def get_guilds(self):
+    @bot.event
+    async def on_guild_join(guild):
 
-        with open("guild_members.json", "a+") as f: 
+        users = self.get_users(guild)
 
-            users = self.get_users()
-            discriminator = [user.user_discriminator for user in users]
-
-            for dis in discriminator:
-                user_json = { dis : []}
-
-                for user in users:
-                    json.dumps(user_json[dis].append(user.to_dict()), f, indent=4, sort_keys=False)
+        with open("guild_members.json", "a+") as f:
+            json.dumps(users, f, indent=4, sort_keys=False)
 
     # @commands.Cog.listener()
-    async def get_users(self):
+    async def get_users(self, guild):
 
-        users = []
-        for guild in self.bot.guilds:
-            for member in guild.member:
-                users.append(User(member.name, member.id, member.discriminator, []))
-
+        users = {}
+        for member in guild.members:
+            discriminator = member.discriminator
+            users[discriminator] = []
+            users[discriminator].append(User(member.name, member.id, []).to_dict())
+        
         return users
 
     #register commands for guild members for server status i guess
