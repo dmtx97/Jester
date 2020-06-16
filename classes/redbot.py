@@ -61,30 +61,10 @@ class RedBot:
 
         self.enumerate_jokes()
 
-
     def parseJson(self):
         with open('redditJokes.json', 'r+') as f:
             data = json.loads(f.read())
 
 
-            # val_test = []
-            # for val in data["06/10/2020, 23:55:31"]:
 
-
-            #     val_test + val['joke_id']
-                
-            # print(val_test)
-            # for date in data:
-            #     for content in data[date]:
-
-            #         if content['joke_id'] == 2:
-            #             print(content['title'])
-
-            # data = json.loads(f.read())
-            # joke_id = []
-            # i = 0
-            # for date in data:
-            #     for content in data[date]:
-            #         i += 1 
-            #         joke_id.append(i)
 

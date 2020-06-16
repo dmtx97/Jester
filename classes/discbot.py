@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from dataclasses_json import dataclass_json
 from datetime import datetime
 from typing import List
+import random
 import asyncio
 import json
 
@@ -31,8 +32,9 @@ class Member(commands.Cog):
                 pass
 
             else:
-                new_user = User(member.name, member.id, member.discriminator, [])
-                data.update(new_user.to_dict())
+                new_user = User(member.name, member.id, [])
+                user_dict = {member.discriminator : new_user.to_dict()}
+                data.update(user_dict)
                 f.seek(0)
                 json.dump(data, f, indent=4, sort_keys=False)
 
@@ -44,54 +46,70 @@ class Member(commands.Cog):
             with open("guild_members.json", "a+") as f:
 
                 data = json.loads(f)
+                date_saved = datetime.today().strftime("%m/%d/%Y")
+                message = str(reaction.message.content) 
+                joke_id = message.partition("Joke ID: ")[2]
+                joke_preview == message[0:23] + "..."
+
+                if len(message) <= 23:
+                    joke_preview == message
 
                 if(user.discriminator in data):
-                    date_added = datetime.today().strftime("%m/%d/%Y")
-                    message = reaction.message.content 
-                    joke_id = message.partition("Joke ID: ")[2]
-                    # data[user.discriminator]['jokes'].append({'date_added' : date_added, 'joke_id' : joke_id})
-                    data[user.discriminator]['jokes'].append(joke_id)
+                    data[user.discriminator]['jokes'].append({"joke_id" : str(joke_id), "joke_preview" : joke_preview, "date_saved" : str(date_saved) })
                     json.dump(data, f, indent=4, sort_keys=False)
 
     @commands.command()
-    async def listfavs(self, ctx, *, member = discord.Member):
+    async def listfavs(self, ctx, member = discord.Member):
 
         embed = discord.Embed(
-            title = "{}'s Saved Jokes".format(member.name)
-            description = "Below is a preview of the jokes that you have saved. To view the full joke, use command !telljoke along with the joke ID seperated by a space"
-            colour = purple
+            title = "{}'s Saved Jokes".format(member.name),
+            description = "Below is a preview of the jokes that you have saved.",
+            colour = discord.Colour.dark_purple()
         )
 
-        member_file = open("guild_members", "r")
-        member_data = json.loads(member_file)
-        jokes_file = open("guild_memmbers", "r")
-        jokes_data = json.loads(jokes_file)
         dis = member.discriminator
+        guild_members = open("guild_members", "r")
+        guild_data = json.loads(guild_members)
+        user_dict = guild_data[dis]
 
-        joke_ids = []
-        if dis in jokes_data:
-            for val in member_data[dis]:
-                joke_ids + val['jokes']
+        joke_id = ""
+        joke_preview = ""
+        date_saved = ""
+        for saved_jokes in user_dict['jokes']:
+            joke_id += saved_jokes["joke_id"] + '\n'
+            joke_preview += saved_jokes["joke_preview"] + '\n'
+            date_saved += saved_jokes["date_saved"] + '\n'
 
-                #loop and splice joke after 25 characters and replace with ... use a \n.join(string) to add new line 
-                #do the same for the joke ID
-                #possible for date added
-                #create 
-        
-        '''possibly change id for the key for the json file instead of date and place the date aquired inside. this will reduce one for loop'''
-        for date in jokes_data:
-            for content in jokes_data[date]:
-                for ids in joke_ids:
+        embed.add_field(name = "Joke ID", value = joke_id, inline = True)
+        embed.add_field(name = "Joke Preview", value = joke_preview, inline = True)
+        embed.add_field(name = "Date Saved", value = date_saved, inline = True)
+        embed.set_footer(text = "To view the full joke, use command !telljoke along with the joke ID separated by a space.")
 
-                    if content['joke_id'] == ids:
-
-        #embed the fields = title, date added, and joke id
-
-        #for each joke id in user, create dictionary 
+        await bot.send(embed = embed)
 
 class Joke(commands.Cog):
 
     def __init__(self, bot):
+
+    @commands.command()
+    async def telljoke(self, ctx, *args):
+
+
+        message = ""
+        with open("redditJokes.json", "r+") as f:
+
+            data = json.loads(f.read())
+
+                for date in data:
+                    for content in data[date]:
+
+                        if len(args) > 0 and content["joke_id"] == args:
+                            message += "```{} \n\n {} ``` \n Joke ID: {}".format(content["title"], content["text"], content["joke_id"])
+
+                        # ran = random.randint(0, len(content-1))
+                        # get random joke
+
+        await bot.send(message)       
 
 class GuildData(commands.Cog):
 
@@ -112,8 +130,8 @@ class GuildData(commands.Cog):
         users = {}
         for member in guild.members:
             discriminator = member.discriminator
-            users[discriminator] = []
-            users[discriminator].append(User(member.name, member.id, []).to_dict())
+            user = User(member.name, member.id, []).to_dict()
+            users[discriminator] = user
         
         return users
 
