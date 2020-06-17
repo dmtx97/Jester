@@ -2,6 +2,7 @@ import praw
 import json
 import os
 import asyncio
+import random
 from datetime import datetime
 
 class RedBot:
@@ -64,6 +65,21 @@ class RedBot:
     def parseJson(self):
         with open('redditJokes.json', 'r+') as f:
             data = json.loads(f.read())
+            joke_len = 0
+            joke_list = []
+
+            for date in data:
+                for content in data[date]:
+                    joke_list.append(content)
+                    joke_len = len(content)
+                    
+            ran = random.randint(0, joke_len)
+            print(joke_list[ran]["title"])
+
+
+
+
+
 
 
 

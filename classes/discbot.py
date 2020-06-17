@@ -83,7 +83,7 @@ class Member(commands.Cog):
         embed.add_field(name = "Joke ID", value = joke_id, inline = True)
         embed.add_field(name = "Joke Preview", value = joke_preview, inline = True)
         embed.add_field(name = "Date Saved", value = date_saved, inline = True)
-        embed.set_footer(text = "To view the full joke, use command !telljoke along with the joke ID separated by a space.")
+        embed.set_footer(text = "To view the full joke, use command !telljoke followd with the joke ID separated by a space.")
 
         await bot.send(embed = embed)
 
@@ -94,20 +94,24 @@ class Joke(commands.Cog):
     @commands.command()
     async def telljoke(self, ctx, *args):
 
-
         message = ""
         with open("redditJokes.json", "r+") as f:
 
             data = json.loads(f.read())
 
+            joke_list = []
                 for date in data:
                     for content in data[date]:
+
+                        ran = random.randint(0, joke_len)
+                        joke_list.append(content)
+                        joke_len = len(content)
 
                         if len(args) > 0 and content["joke_id"] == args:
                             message += "```{} \n\n {} ``` \n Joke ID: {}".format(content["title"], content["text"], content["joke_id"])
 
-                        # ran = random.randint(0, len(content-1))
-                        # get random joke
+                        else:
+                            message += "```{} \n\n {} ``` \n Joke ID: {}".format(joke_list[ran]["title"], joke_list[ran]["text"], joke_list[ran]["joke_id"])
 
         await bot.send(message)       
 
