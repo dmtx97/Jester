@@ -75,12 +75,3 @@ class RedBot:
                     
             ran = random.randint(0, joke_len)
             print(joke_list[ran]["title"])
-
-
-
-
-
-
-
-
-

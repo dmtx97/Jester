@@ -1,21 +1,5 @@
-import discord
-from discord.ext import commands
-from dataclasses import dataclass
-from dataclasses_json import dataclass_json
-from datetime import datetime
-from typing import List
-import random
-import asyncio
-import json
-
-@dataclass_json
-@dataclass
-class User:
-    '''Class for creating new users'''
-    user_name : str
-    user_id : int
-    # user_discriminator : str
-    jokes : List = []
+from ..lib import discord_imports
+from ..user import User
 
 class Member(commands.Cog):
 
@@ -87,56 +71,5 @@ class Member(commands.Cog):
 
         await bot.send(embed = embed)
 
-class Joke(commands.Cog):
-
-    def __init__(self, bot):
-
-    @commands.command()
-    async def telljoke(self, ctx, *args):
-
-        message = ""
-        with open("redditJokes.json", "r+") as f:
-
-            data = json.loads(f.read())
-
-            joke_list = []
-                for date in data:
-                    for content in data[date]:
-
-                        ran = random.randint(0, joke_len)
-                        joke_list.append(content)
-                        joke_len = len(content)
-
-                        if len(args) > 0 and content["joke_id"] == args:
-                            message += "```{} \n\n {} ``` \n Joke ID: {}".format(content["title"], content["text"], content["joke_id"])
-
-                        else:
-                            message += "```{} \n\n {} ``` \n Joke ID: {}".format(joke_list[ran]["title"], joke_list[ran]["text"], joke_list[ran]["joke_id"])
-
-        await bot.send(message)       
-
-class GuildData(commands.Cog):
-
-    def __init__(self, bot):
-        self.bot = bot
-
-    @bot.event
-    async def on_guild_join(guild):
-
-        users = self.get_users(guild)
-
-        with open("guild_members.json", "a+") as f:
-            json.dumps(users, f, indent=4, sort_keys=False)
-
-    @commands.Cog.listener()
-    async def get_users(self, guild):
-
-        users = {}
-        for member in guild.members:
-            discriminator = member.discriminator
-            user = User(member.name, member.id, []).to_dict()
-            users[discriminator] = user
-        
-        return users
-
-#create commands for server status
+def setup(bot):
+    bot.add_cog(Member(bot))
