@@ -63,15 +63,30 @@ class RedBot:
         self.enumerate_jokes()
 
     def parseJson(self):
-        with open('redditJokes.json', 'r+') as f:
-            data = json.loads(f.read())
-            joke_len = 0
-            joke_list = []
 
-            for date in data:
-                for content in data[date]:
-                    joke_list.append(content)
-                    joke_len = len(content)
+
+
+        test_dict = {"dan" : {"username" : "nacdan", "user_id" : 123, "jokes" : [{"joke_id" : "1", "joke_preview" : "preview"}, {"joke_id" : "2", "joke_preview" : "preview"},{"joke_id" : "3", "joke_preview" : "preview"}]}}
+
+
+        for content in test_dict["dan"]["jokes"]:
+
+            if "1" in content.values():
+                test_dict["dan"]["jokes"].remove(content)
+        print(test_dict)
+
+
+        # print(test_dict)
+
+        # with open('redditJokes.json', 'r+') as f:
+        #     data = json.loads(f.read())
+        #     joke_len = 0
+        #     joke_list = []
+
+        #     for date in data:
+        #         for content in data[date]:
+        #             joke_list.append(content)
+        #             joke_len = len(content)
                     
-            ran = random.randint(0, joke_len)
-            print(joke_list[ran]["title"])
+        #     ran = random.randint(0, joke_len)
+        #     print(joke_list[ran]["title"])

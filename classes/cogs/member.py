@@ -25,22 +25,48 @@ class Member(commands.Cog):
     @bot.event
     async def on_reaction_add(reaction, user):
 
-        if(reaction.emoji == ⭐):
+        if reaction.message.author.id == bot.user.id and reaction.emoji == ⭐:
+            
+            message = str(reaction.message.content)
+            joke_preview = ""
 
             with open("guild_members.json", "a+") as f:
 
                 data = json.loads(f)
-                date_saved = datetime.today().strftime("%m/%d/%Y")
-                message = str(reaction.message.content) 
-                joke_id = message.partition("Joke ID: ")[2]
-                joke_preview == message[0:23] + "..."
 
-                if len(message) <= 23:
-                    joke_preview == message
+                if "Joke ID:" in message:
+                    date_saved = datetime.today().strftime("%m/%d/%Y")
+                    joke_id = message.partition("Joke ID: ")[2]
+                    joke_id = int(joke_id)
+                    joke_preview += message[0:23] + "..."
 
-                if(user.discriminator in data):
-                    data[user.discriminator]['jokes'].append({"joke_id" : str(joke_id), "joke_preview" : joke_preview, "date_saved" : str(date_saved) })
-                    json.dump(data, f, indent=4, sort_keys=False)
+                    if len(message) <= 23:
+                        joke_preview += message
+
+                    #check if user discriminator is in the json file and if he/she already has the joke saved
+                    if user.discriminator in data and joke_id not in data[user.discriminator]["jokes"].values():
+                        data[user.discriminator]['jokes'].append({"joke_id" : str(joke_id), "joke_preview" : joke_preview, "date_saved" : str(date_saved) })
+                        json.dump(data, f, indent=4, sort_keys=False)
+
+    @bot.event
+    async def on_reaction_remove(reaction, user):
+
+        if reaction.message.author.id == bot.user.id and reaction.emoji == ⭐:
+            message = str(reaction.message.content)
+
+            with open("guild_members.json", "a+") as f:
+                data = json.loads(f)
+
+                if "Joke ID:" in message:
+                    joke_id = message.partition("Joke ID: ")[2]
+                    joke_id = int(joke_id)
+
+                    if(user.discriminator in data):
+                        for content in data[user.discriminator]["jokes"]:
+                            if joke_id in content.values():
+                                data[user.discriminator]["jokes"].remove(content)
+                                f.seek(0)
+                                json.dump(data, f, indent=4, sort_keys = False)
 
     @commands.command()
     async def listfavs(self, ctx, member = discord.Member):
@@ -67,7 +93,7 @@ class Member(commands.Cog):
         embed.add_field(name = "Joke ID", value = joke_id, inline = True)
         embed.add_field(name = "Joke Preview", value = joke_preview, inline = True)
         embed.add_field(name = "Date Saved", value = date_saved, inline = True)
-        embed.set_footer(text = "To view the full joke, use command !telljoke followd with the joke ID separated by a space.")
+        embed.set_footer(text = "To view the full joke, use command !telljoke followed with the joke ID separated by a space.")
 
         await bot.send(embed = embed)
 
