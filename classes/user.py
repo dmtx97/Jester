@@ -1,3 +1,7 @@
+from dataclasses import dataclass, field
+from dataclasses_json import dataclass_json
+# from typing import List
+
 @dataclass_json
 @dataclass
 class User:
@@ -5,4 +9,4 @@ class User:
     user_name : str
     user_id : int
     # user_discriminator : str
-    jokes : List = []
+    jokes : list = field(default_factory=list)

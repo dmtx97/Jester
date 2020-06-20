@@ -24,6 +24,6 @@ if __name__ == "__main__":
 
     for filename in os.listdir('./classes/cogs'):
         if filename.endswith('.py'):
-            client.load_extension(f'classes.cogs.{filename[:-3]}')
+            bot.load_extension(f'classes.cogs.{filename[:-3]}')
 
     bot.run(discord_token)

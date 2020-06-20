@@ -1,4 +1,12 @@
-from ..lib import discord_imports
+import discord
+from discord.ext import commands
+from dataclasses import dataclass
+from dataclasses_json import dataclass_json
+from datetime import datetime
+from typing import List
+import random
+import asyncio
+import json
 from ..user import User
 
 class Member(commands.Cog):
@@ -6,7 +14,7 @@ class Member(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @bot.event()
+    @commands.Cog.listener()
     async def on_member_join(self, member):
 
         with open("guild_members.json", "r+") as f:
@@ -22,10 +30,10 @@ class Member(commands.Cog):
                 f.seek(0)
                 json.dump(data, f, indent=4, sort_keys=False)
 
-    @bot.event
-    async def on_reaction_add(reaction, user):
+    @commands.Cog.listener()
+    async def on_reaction_add(self, reaction, user):
 
-        if reaction.message.author.id == bot.user.id and reaction.emoji == ⭐:
+        if reaction.message.author.id == bot.user.id and reaction.emoji == '⭐':
             
             message = str(reaction.message.content)
             joke_preview = ""
@@ -48,10 +56,10 @@ class Member(commands.Cog):
                         data[user.discriminator]['jokes'].append({"joke_id" : str(joke_id), "joke_preview" : joke_preview, "date_saved" : str(date_saved) })
                         json.dump(data, f, indent=4, sort_keys=False)
 
-    @bot.event
-    async def on_reaction_remove(reaction, user):
+    @commands.Cog.listener()
+    async def on_reaction_remove(self, reaction, user):
 
-        if reaction.message.author.id == bot.user.id and reaction.emoji == ⭐:
+        if reaction.message.author.id == bot.user.id and reaction.emoji == '⭐':
             message = str(reaction.message.content)
 
             with open("guild_members.json", "a+") as f:
@@ -78,22 +86,23 @@ class Member(commands.Cog):
         )
 
         dis = member.discriminator
-        guild_members = open("guild_members", "r")
-        guild_data = json.loads(guild_members)
-        user_dict = guild_data[dis]
 
-        joke_id = ""
-        joke_preview = ""
-        date_saved = ""
-        for saved_jokes in user_dict['jokes']:
-            joke_id += saved_jokes["joke_id"] + '\n'
-            joke_preview += saved_jokes["joke_preview"] + '\n'
-            date_saved += saved_jokes["date_saved"] + '\n'
+        with open("guild_members.json", "r+") as f:
+            guild_data = json.loads(f.read())
+            user_dict = guild_data[dis]
 
-        embed.add_field(name = "Joke ID", value = joke_id, inline = True)
-        embed.add_field(name = "Joke Preview", value = joke_preview, inline = True)
-        embed.add_field(name = "Date Saved", value = date_saved, inline = True)
-        embed.set_footer(text = "To view the full joke, use command !telljoke followed with the joke ID separated by a space.")
+            joke_id = ""
+            joke_preview = ""
+            date_saved = ""
+            for saved_jokes in user_dict['jokes']:
+                joke_id += saved_jokes["joke_id"] + '\n'
+                joke_preview += saved_jokes["joke_preview"] + '\n'
+                date_saved += saved_jokes["date_saved"] + '\n'
+
+            embed.add_field(name = "Joke ID", value = joke_id, inline = True)
+            embed.add_field(name = "Joke Preview", value = joke_preview, inline = True)
+            embed.add_field(name = "Date Saved", value = date_saved, inline = True)
+            embed.set_footer(text = "To view the full joke, use command !telljoke followed with the joke ID separated by a space.")
 
         await bot.send(embed = embed)
 

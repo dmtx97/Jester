@@ -1,4 +1,12 @@
-from ..lib import discord_imports
+import discord
+from discord.ext import commands
+from dataclasses import dataclass
+from dataclasses_json import dataclass_json
+from datetime import datetime
+from typing import List
+import random
+import asyncio
+import json
 from ..user import User
 
 class Server(commands.Cog):
@@ -6,16 +14,15 @@ class Server(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @bot.event
-    async def on_guild_join(guild):
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild):
 
         users = self.get_users(guild)
 
         with open("guild_members.json", "a+") as f:
-            json.dumps(users, f, indent=4, sort_keys=False)
+            json.dump(users, f, indent=4, sort_keys=False)
 
-    @commands.Cog.listener()
-    async def get_users(self, guild):
+    def get_users(self, guild):
 
         users = {}
         for member in guild.members:

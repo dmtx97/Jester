@@ -32,15 +32,15 @@ class RedBot:
             json.dump(data, f, indent=4, sort_keys=False)
 
     def getJokes(self):
-        today = datetime.today().strftime("%m/%d/%Y, %H:%M:%S")
+        today = datetime.today().strftime("%m/%d/%Y")
         jokes = {today: []}
 
-        for submission in self.reddit.subreddit('jokes').hot(limit=5):
+        for submission in self.reddit.subreddit('jokes').hot(limit=200):
             post = self.reddit.submission(id=submission.id)
             title = post.title 
             text = post.selftext
 
-            if post.score >= 300 and not post.edited and not post.stickied:
+            if post.score >= 100 and not post.edited and not post.stickied:
                 jokes[today].append({'title': title, 'text' : text})
 
         return jokes
@@ -63,8 +63,6 @@ class RedBot:
         self.enumerate_jokes()
 
     def parseJson(self):
-
-
 
         test_dict = {"dan" : {"username" : "nacdan", "user_id" : 123, "jokes" : [{"joke_id" : "1", "joke_preview" : "preview"}, {"joke_id" : "2", "joke_preview" : "preview"},{"joke_id" : "3", "joke_preview" : "preview"}]}}
 
