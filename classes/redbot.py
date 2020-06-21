@@ -64,14 +64,32 @@ class RedBot:
 
     def parseJson(self):
 
-        test_dict = {"dan" : {"username" : "nacdan", "user_id" : 123, "jokes" : [{"joke_id" : "1", "joke_preview" : "preview"}, {"joke_id" : "2", "joke_preview" : "preview"},{"joke_id" : "3", "joke_preview" : "preview"}]}}
+        with open("redditJokes.json", "r+") as f:
+
+            data = json.loads(f.read())
+
+            message = ""
+            joke_list = []
+            for date in data:
+                for content in data[date]:
+
+                    joke_list.append(content)
+
+                    #ISSUE "Cannot send an empty message"
+                    if content["joke_id"] == 14:
+                        message += "```{}{} ``` \n Joke ID: {}".format(content["title"], content["text"], content["joke_id"])
+                        break
+            
+
+            print(message)
+        # test_dict = {"dan" : {"username" : "nacdan", "user_id" : 123, "jokes" : [{"joke_id" : "1", "joke_preview" : "preview"}, {"joke_id" : "2", "joke_preview" : "preview"},{"joke_id" : "3", "joke_preview" : "preview"}]}}
 
 
-        for content in test_dict["dan"]["jokes"]:
+        # for content in test_dict["dan"]["jokes"]:
 
-            if "1" in content.values():
-                test_dict["dan"]["jokes"].remove(content)
-        print(test_dict)
+        #     if "1" in content.values():
+        #         test_dict["dan"]["jokes"].remove(content)
+        # print(test_dict)
 
 
         # print(test_dict)

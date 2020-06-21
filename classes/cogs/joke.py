@@ -16,7 +16,7 @@ class Joke(commands.Cog):
     @commands.command()
     async def telljoke(self, ctx, *args):
 
-        message = ""
+        message = " "
         with open("redditJokes.json", "r+") as f:
 
             data = json.loads(f.read())
@@ -27,10 +27,21 @@ class Joke(commands.Cog):
 
                     joke_list.append(content)
 
-                    #ISSUE "Cannot send an empty message"
-                    if len(args) > 0 and content["joke_id"] == str(args):
-                        message += "```{}{} ``` \n Joke ID: {}".format(content["title"], content["text"], content["joke_id"])
-                        break
+                    if len(args) > 0:
+
+                        try:
+
+                            if content["joke_id"] == int(args[0]):
+                                message += "```{}\n{} ```Joke ID: {}".format(content["title"], content["text"], content["joke_id"])
+                                break         
+
+                            else:
+                                message += "Joke ID Not Found"
+                                break
+
+                        except ValueError:
+                            message += "Invalid Joke ID"
+                            break           
 
             if len(args) == 0:
 
@@ -38,7 +49,7 @@ class Joke(commands.Cog):
                 ran = random.randint(0, joke_len)
                 message += "```{}\n{}```Joke ID: {}".format(joke_list[ran]["title"], joke_list[ran]["text"], joke_list[ran]["joke_id"])
                 
-        #TODO bot reacts to message with ⭐
+        # TODO: bot reacts to message with ⭐
         await ctx.send(message)
         # print(message)
 
